@@ -11,4 +11,4 @@ python-dotenv==1.0.0
 httpx==0.25.1
 apscheduler==3.10.4
 redis==5.0.1
-celery==5.3.4
+celery==5.5.3
