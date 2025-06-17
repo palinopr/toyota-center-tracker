@@ -61,4 +61,13 @@ async def check_axs_event(url: str):
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    print(f"Starting API on port {port}...")
+    try:
+        uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
+    except Exception as e:
+        print(f"Failed to start: {e}")
+        # Fallback to basic HTTP server
+        from http.server import HTTPServer, SimpleHTTPRequestHandler
+        print(f"Starting fallback server on port {port}...")
+        server = HTTPServer(("0.0.0.0", port), SimpleHTTPRequestHandler)
+        server.serve_forever()
