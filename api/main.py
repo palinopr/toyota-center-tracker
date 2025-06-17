@@ -31,7 +31,7 @@ if os.path.exists("dashboard"):
     app.mount("/dashboard", StaticFiles(directory="dashboard", html=True), name="dashboard")
 
 scraper = ToyotaCenterScraper()
-axs_scraper = AXSScraper()
+axs_scraper = None  # Initialize only when needed
 
 class EventResponse(BaseModel):
     name: str
@@ -55,7 +55,16 @@ class PriceDropResponse(BaseModel):
 @app.on_event("startup")
 async def startup_event():
     """Initialize background monitoring on startup"""
-    start_monitoring()
+    # Delay monitoring start to avoid initialization issues
+    import asyncio
+    async def delayed_start():
+        await asyncio.sleep(60)  # Wait 1 minute before starting monitoring
+        try:
+            start_monitoring()
+        except Exception as e:
+            print(f"Failed to start monitoring: {e}")
+    
+    asyncio.create_task(delayed_start())
 
 @app.get("/")
 async def root():
@@ -233,6 +242,11 @@ async def get_price_history(event_name: str, section: Optional[str] = None):
 async def check_axs_event(url: str):
     """Check ticket prices for an AXS event URL"""
     try:
+        global axs_scraper
+        if axs_scraper is None:
+            from scrapers.axs_scraper import AXSScraper
+            axs_scraper = AXSScraper()
+        
         ticket_data = axs_scraper.get_ticket_info(url)
         
         # Store event if it has valid data
