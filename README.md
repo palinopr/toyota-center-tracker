@@ -49,7 +49,7 @@ python check_any_event.py "https://your-event-url"
 
 ## 🚄 Deploy to Railway
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/deploy?referralCode=)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template/github/palinopr/toyota-center-tracker)
 
 1. Click the button above
 2. Connect your GitHub account
