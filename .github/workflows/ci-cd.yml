@@ -1,0 +1,60 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio flake8
+      
+      - name: Run basic linting
+        run: |
+          # Check for syntax errors and undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      
+      - name: Run tests
+        run: |
+          # Run existing test files
+          if [ -f "test_axs_scraper.py" ]; then
+            python -m pytest test_axs_scraper.py -v
+          fi
+          # Test imports and basic functionality
+          python -c "from api.main import app; print('API imports successful')"
+          python -c "from scrapers.toyota_center_scraper import ToyotaCenterScraper; print('Scraper imports successful')"
+          python -c "from scrapers.axs_scraper import AXSScraper; print('AXS scraper imports successful')"
+
+  deploy:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Deploy to Railway
+        uses: berviantoleo/railway-deploy@main
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          service: toyota-center-tracker

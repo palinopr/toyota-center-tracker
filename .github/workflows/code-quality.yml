@@ -1,0 +1,57 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8 black mypy pylint bandit safety
+      
+      - name: Check code formatting (Black)
+        run: black --check --diff .
+      
+      - name: Run Flake8 linter
+        run: |
+          flake8 . --count --statistics \
+            --max-line-length=100 \
+            --exclude=.git,__pycache__,env,venv,.venv
+      
+      - name: Run Pylint
+        run: pylint **/*.py --fail-under=7.0
+        continue-on-error: true
+      
+      - name: Check type hints (mypy)
+        run: mypy . --ignore-missing-imports --python-version 3.11
+        continue-on-error: true
+      
+      - name: Security audit (Bandit)
+        run: bandit -r . -f json -o bandit-report.json
+        continue-on-error: true
+      
+      - name: Check dependencies for vulnerabilities
+        run: safety check --json
+        continue-on-error: true
+      
+      - name: Check for large files
+        uses: actionsdesk/lfs-warning@v3.2
+        with:
+          filesizelimit: '1MB'

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toyota Center Ticket Tracker Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-ticket-alt text-red-600"></i> Toyota Center Ticket Tracker
+            </h1>
+            <p class="text-gray-600">Real-time monitoring of ticket prices and availability</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <button onclick="checkEvent()" class="bg-blue-500 text-white p-4 rounded-lg hover:bg-blue-600 transition">
+                <i class="fas fa-search"></i> Check Event URL
+            </button>
+            <button onclick="refreshDashboard()" class="bg-green-500 text-white p-4 rounded-lg hover:bg-green-600 transition">
+                <i class="fas fa-sync"></i> Refresh Data
+            </button>
+            <button onclick="toggleAutoRefresh()" class="bg-purple-500 text-white p-4 rounded-lg hover:bg-purple-600 transition">
+                <i class="fas fa-clock"></i> <span id="autoRefreshText">Enable Auto-Refresh</span>
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-sm font-semibold text-gray-600 mb-2">Active Events</h3>
+                <p class="text-2xl font-bold text-gray-800" id="activeEvents">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-sm font-semibold text-gray-600 mb-2">Price Drops Today</h3>
+                <p class="text-2xl font-bold text-green-600" id="priceDrops">0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-sm font-semibold text-gray-600 mb-2">Lowest Price</h3>
+                <p class="text-2xl font-bold text-blue-600" id="lowestPrice">$0</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-sm font-semibold text-gray-600 mb-2">Last Check</h3>
+                <p class="text-sm font-semibold text-gray-600" id="lastCheck">Never</p>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Current Prices -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold mb-4">Current Ticket Prices</h2>
+                <div id="currentPrices" class="space-y-2">
+                    <p class="text-gray-500">No data available. Check an event to see prices.</p>
+                </div>
+            </div>
+
+            <!-- Price History Chart -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold mb-4">Price History</h2>
+                <canvas id="priceChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Price Drops -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+            <h2 class="text-xl font-bold mb-4">
+                <i class="fas fa-arrow-down text-green-600"></i> Recent Price Drops
+            </h2>
+            <div id="priceDropsList" class="space-y-3">
+                <p class="text-gray-500">No price drops detected yet.</p>
+            </div>
+        </div>
+
+        <!-- Event Monitor -->
+        <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+            <h2 class="text-xl font-bold mb-4">Monitored Events</h2>
+            <div id="monitoredEvents" class="space-y-3">
+                <p class="text-gray-500">No events being monitored.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding events -->
+    <div id="eventModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h3 class="text-lg font-bold mb-4">Check Event Tickets</h3>
+            <input type="text" id="eventUrl" placeholder="Paste AXS or Toyota Center URL" 
+                   class="w-full p-3 border rounded mb-4">
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+                <button onclick="submitEvent()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Check Prices</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

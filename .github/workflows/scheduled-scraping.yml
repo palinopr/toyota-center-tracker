@@ -1,0 +1,58 @@
+name: Scheduled Scraping Test
+
+on:
+  schedule:
+    # Run every day at 9 AM UTC (4 AM EST / 3 AM CST)
+    - cron: '0 9 * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  scrape-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Test Toyota Center scraper
+        run: |
+          python -c "
+          from scrapers.toyota_center_scraper import ToyotaCenterScraper
+          scraper = ToyotaCenterScraper()
+          events = scraper.get_all_events()
+          print(f'Found {len(events)} events from Toyota Center')
+          for event in events[:5]:  # Print first 5 events
+              print(f'- {event.get(\"name\", \"Unknown\")} on {event.get(\"date\", \"Unknown date\")}')
+          "
+        continue-on-error: true
+      
+      - name: Test AXS scraper
+        run: |
+          python -c "
+          from scrapers.axs_scraper import AXSScraper
+          scraper = AXSScraper()
+          events = scraper.get_all_events()
+          print(f'Found {len(events)} events from AXS')
+          for event in events[:5]:  # Print first 5 events
+              print(f'- {event.get(\"name\", \"Unknown\")} on {event.get(\"date\", \"Unknown date\")}')
+          "
+        continue-on-error: true
+      
+      - name: Check for Rockets games
+        run: python check_rockets.py
+        continue-on-error: true
+      
+      - name: Check for any events
+        run: python check_any_event.py
+        continue-on-error: true
