@@ -1,1 +1,1 @@
-web: python api_only.py
+web: python app.py
