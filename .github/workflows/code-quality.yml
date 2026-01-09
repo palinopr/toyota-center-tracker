@@ -52,6 +52,6 @@ jobs:
         continue-on-error: true
       
       - name: Check for large files
-        uses: actionsdesk/lfs-warning@v3.2
+        uses: actionsdesk/lfs-warning@v3.3
         with:
           filesizelimit: '1MB'
